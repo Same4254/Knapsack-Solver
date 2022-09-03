@@ -9,7 +9,7 @@ std::vector<std::vector<T>> PowerSet(const std::vector<T> &list) {
     // Going through every number up to 2^n gives the 0 and 1 combinations of including and excluding the items
     // The nth bit of includer tells you if the nth element is included in the powerset
     // Only works up to 64 elements, but no way we are brute forcing this for that big of an itemset
-    for (uint64_t includer = 1; includer < (1 << list.size()); includer++) {
+    for (uint64_t includer = 0; includer < (1 << list.size()); includer++) {
         std::vector<T> temp;
         for (size_t i = 0; i < list.size(); i++) {
             // Test if the ith element is included
@@ -23,7 +23,7 @@ std::vector<std::vector<T>> PowerSet(const std::vector<T> &list) {
     return toRet;
 }
 
-KnapsackResult Knapsack::BruteForce(KnapsackInstance &instance) {
+KnapsackResult Knapsack::BruteForce(const KnapsackInstance &instance) {
     KnapsackResult result;
     std::vector<std::vector<Item>> combinations = PowerSet(instance.items);
 

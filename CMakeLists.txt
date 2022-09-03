@@ -4,7 +4,7 @@ project("Knapsack")
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-add_executable (Knapsack "src/Main.cpp" "src/BruteForce.cpp")
+add_executable (Knapsack "src/Main.cpp" "src/BruteForce.cpp" "src/Utils.cpp")
 
 add_custom_target(copy-test-cases ALL
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/TestCases ${PROJECT_BINARY_DIR}/TestCases
