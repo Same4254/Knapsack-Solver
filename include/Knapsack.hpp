@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include <algorithm>
 
 /**
  * Special cases to check for!
@@ -26,6 +27,14 @@ namespace Knapsack {
         friend std::ostream& operator<<(std::ostream &stream, const Item &item) {
             stream << "Value: " << item.value << ", " << item.weight;
             return stream;
+        }
+
+        bool operator<(const Item &other) const {
+            return value == other.value ? weight <= other.weight : value < other.value;
+        }
+
+        bool operator==(const Item &other) const {
+            return value == other.value && weight == other.weight;
         }
     };
 
@@ -52,6 +61,16 @@ namespace Knapsack {
 
     struct KnapsackResult {
         std::vector<Item> items;
+    
+        bool operator==(const KnapsackResult &other) {
+            std::vector<Item> sorted = items;
+            std::vector<Item> otherSorted = other.items;
+
+            std::sort(sorted.begin(), sorted.end());
+            std::sort(otherSorted.begin(), otherSorted.end());
+            
+            return sorted == otherSorted;
+        }
     };
 
     // ***** FILE I/O ***** 
@@ -64,9 +83,10 @@ namespace Knapsack {
      * Any capacity greater than the sum of all weights is no different from an even higher capacity (solution: take everything).
      * These middle values for capacity are what will actually test the algorithm's decision
      */
-    KnapsackInstance GenerateRandomInstance(const size_t maxElements, const int64_t maxItemValue, const int64_t maxItemWeight);
+    KnapsackInstance GenerateRandomInstance(const size_t minElements, const size_t maxElements, const int64_t maxItemValue, const int64_t maxItemWeight);
 
     // ***** Solvers *****
 
     KnapsackResult BruteForce(const KnapsackInstance &instance);
+    KnapsackResult BruteForceFast(const KnapsackInstance &instance);
 };

@@ -50,3 +50,35 @@ KnapsackResult Knapsack::BruteForce(const KnapsackInstance &instance) {
 
     return result;
 }
+
+KnapsackResult Knapsack::BruteForceFast(const KnapsackInstance &instance) {
+    KnapsackResult result;
+
+    int64_t bestValue = 0;
+    uint64_t bestChoice = 0;
+
+    for (uint64_t includer = 0; includer < ((uint64_t)1 << (uint64_t)instance.items.size()); includer++) {
+        int64_t value = 0;
+        int64_t weight = 0;
+
+        for (size_t i = 0; i < instance.items.size(); i++) {
+            if ((1 << i) & includer) {
+                value += instance.items[i].value;
+                weight += instance.items[i].weight;
+            }
+        }
+
+        if (weight <= instance.capacity && value > bestValue) {
+            bestValue = value;
+            bestChoice = includer;
+        }
+    }
+    
+    for (size_t i = 0; i < instance.items.size(); i++) {
+        if ((1 << i) & bestChoice) {
+            result.items.push_back(instance.items[i]);
+        }
+    }
+
+    return result;
+}

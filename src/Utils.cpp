@@ -45,11 +45,11 @@ void KnapsackInstance::WriteToFile(const std::string &filePath) {
     file.close();
 }
 
-KnapsackInstance Knapsack::GenerateRandomInstance(const size_t maxElements, const int64_t maxItemValue, const int64_t maxItemWeight) {
+KnapsackInstance Knapsack::GenerateRandomInstance(const size_t minElements, const size_t maxElements, const int64_t maxItemValue, const int64_t maxItemWeight) {
     std::random_device device;
     std::mt19937 rng(device());
 
-    std::uniform_int_distribution<int64_t> elementRandomizer(1, maxElements);
+    std::uniform_int_distribution<int64_t> elementRandomizer(minElements, maxElements);
     std::uniform_int_distribution<int64_t> valueRandomizer(0, maxItemValue);
     std::uniform_int_distribution<int64_t> weightRandomizer(0, maxItemValue);
 
