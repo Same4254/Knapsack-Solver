@@ -7,6 +7,7 @@
 #include <fstream>
 #include <random>
 #include <algorithm>
+#include <queue>
 
 /**
  * Special cases to check for!
@@ -29,11 +30,11 @@ namespace Knapsack {
             return stream;
         }
 
-        bool operator<(const Item &other) const {
+        inline bool operator<(const Item &other) const {
             return value == other.value ? weight <= other.weight : value < other.value;
         }
 
-        bool operator==(const Item &other) const {
+        inline bool operator==(const Item &other) const {
             return value == other.value && weight == other.weight;
         }
     };
@@ -89,4 +90,22 @@ namespace Knapsack {
 
     KnapsackResult BruteForce(const KnapsackInstance &instance);
     KnapsackResult BruteForceFast(const KnapsackInstance &instance);
+
+    struct BranchAndBoundNode {
+        std::vector<Item> selectedItems;
+        int64_t valueSum, weightSum;
+
+        int64_t valueUpperBound;
+        size_t index;
+
+        BranchAndBoundNode(std::vector<Item> selectedItems, int64_t valueSum, int64_t weightSum, int64_t valueUpperBound, size_t index) : selectedItems(selectedItems), valueSum(valueSum), weightSum(weightSum), valueUpperBound(valueUpperBound), index(index) {
+
+        }
+
+        inline bool operator<(const BranchAndBoundNode &node2) const {
+            return valueUpperBound < node2.valueUpperBound;
+        }
+    };
+
+    KnapsackResult BranchAndBound(const KnapsackInstance &instance);
 };
