@@ -9,25 +9,29 @@ KnapsackResult DPKnapsack::DPAlg() {
         return KnapsackResult();
     } else {
         DPSubProb(instance.capacity, 0);
-        std::string fullProbId = std::to_string(instance.capacity) + "," + std::to_string(0);
+        // std::string fullProbId = std::to_string(instance.capacity) + "," + std::to_string(0);
+        uint64_t fullProbId = (instance.capacity << 32);
         return table[fullProbId];
     }
 }
 
 void DPKnapsack::DPSubProb(const int64_t remCapacity, const int64_t itemIndex) {
 
-    std::string subProbId = std::to_string(remCapacity) + "," + std::to_string(itemIndex); // Identifier of this subproblem
+    // std::string subProbId = std::to_string(remCapacity) + "," + std::to_string(itemIndex); // Identifier of this subproblem
+    uint64_t subProbId = (remCapacity << 32) | itemIndex; // Identifier of this subproblem
 
     int64_t untakenRemCapacity = remCapacity, takenRemCapacity = remCapacity - instance.items[itemIndex].weight;
-    std::string untakenSubProbId = std::to_string(untakenRemCapacity) + "," + std::to_string(itemIndex + 1);
-    std::string takenSubProbId = std::to_string(takenRemCapacity) + "," + std::to_string(itemIndex + 1);
+    // std::string untakenSubProbId = std::to_string(untakenRemCapacity) + "," + std::to_string(itemIndex + 1);
+    // std::string takenSubProbId = std::to_string(takenRemCapacity) + "," + std::to_string(itemIndex + 1);
+    uint64_t untakenSubProbId = (untakenRemCapacity << 32) | (itemIndex + 1);
+    uint64_t takenSubProbId = (takenRemCapacity << 32) | (itemIndex + 1);
     int64_t untakenProfit = 0, takenProfit = 0;
     
     // If we don't take item i
     if (itemIndex < (instance.items.size() - 1)) { // If this is not the last item
         if (table.count(untakenSubProbId) == 0) // If we don't yet have result for remainder
             DPSubProb(untakenRemCapacity, itemIndex + 1);
-        // Find what would profit for remainder if we don't take item i
+        // Find what would be profit for remainder if we don't take item i
         for (const auto &item : table[untakenSubProbId].items)
             untakenProfit += item.value;
     }
