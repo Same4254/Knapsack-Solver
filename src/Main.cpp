@@ -7,9 +7,6 @@
 
 size_t countFailedFiles() {
     std::filesystem::path testCaseFolder("TestCases/Failed");
-    if (!std::filesystem::exists(testCaseFolder)) {
-        std::filesystem::create_directory(testCaseFolder);
-    }
 
     size_t count = 0;
     for (auto& f : std::filesystem::directory_iterator(testCaseFolder))
@@ -100,8 +97,6 @@ void TimeAndTest(const KnapsackInstance &instance, bool writeFails) {
 int main() {
     using namespace Knapsack;
 
-    KnapsackInstance instance("TestCases/Failed/Failed_30.txt");
-
     //KnapsackResult b = BruteForceFast(instance);
     //KnapsackResult bnb = BranchAndBound(instance);
 
@@ -125,6 +120,9 @@ int main() {
     //std::cout << value2 << " " << weight2 << std::endl;
 
     std::filesystem::path testCaseFolder("TestCases/Failed");
+    if (!std::filesystem::exists(testCaseFolder)) {
+        std::filesystem::create_directory(testCaseFolder);
+    }
 
     for (auto& f : std::filesystem::directory_iterator(testCaseFolder)) {
         std::cout << "Testing: " << f.path().filename() << std::endl;
