@@ -31,7 +31,7 @@ KnapsackInstance::KnapsackInstance(const std::string &filePath) {
     file.close();
 }
 
-void KnapsackInstance::WriteToFile(const std::string &filePath) {
+void KnapsackInstance::WriteToFile(const std::string &filePath) const {
     std::ofstream file(filePath, std::ios::trunc);
 
     file << items.size() << std::endl;
@@ -50,8 +50,8 @@ KnapsackInstance Knapsack::GenerateRandomInstance(const size_t minElements, cons
     std::mt19937 rng(device());
 
     std::uniform_int_distribution<int64_t> elementRandomizer(minElements, maxElements);
-    std::uniform_int_distribution<int64_t> valueRandomizer(0, maxItemValue);
-    std::uniform_int_distribution<int64_t> weightRandomizer(0, maxItemValue);
+    std::uniform_int_distribution<int64_t> valueRandomizer(1, maxItemValue);
+    std::uniform_int_distribution<int64_t> weightRandomizer(1, maxItemValue);
 
     const size_t numElements = elementRandomizer(rng);
 

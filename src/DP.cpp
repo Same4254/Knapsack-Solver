@@ -38,8 +38,10 @@ KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
                 continue;
             }
             // Find what would be profit for remainder if we don't take item i
-            for (const auto &item : table[untakenSubProbId].items)
+            for (auto i : table[untakenSubProbId].itemIndicies) {
+                const Item &item = instance.items[i];
                 untakenProfit += item.value;
+            }
         }
 
         // If we can take item i (it fits)
@@ -50,8 +52,10 @@ KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
                     continue;
                 }
                 // Find what would be profit for remainder if we take item i
-                for (const auto &item : table[takenSubProbId].items)
+                for (auto i : table[takenSubProbId].itemIndicies) {
+                    const Item &item = instance.items[i];
                     takenProfit += item.value;
+                }
             }
             // Don't forget we take item i too
             takenProfit += instance.items[itemIndex].value;
@@ -61,13 +65,13 @@ KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
         if (itemIndex == (instance.items.size() - 1)) { // If this is the last item
             table[subProbId] = KnapsackResult();
             if (untakenProfit < takenProfit) // Take item i
-                table[subProbId].items.push_back(instance.items[itemIndex]);
+                table[subProbId].itemIndicies.insert(itemIndex);
         } else { // If this is not the last item
             if (untakenProfit >= takenProfit) { // Don't take item i
                 table[subProbId] = table[untakenSubProbId];
             } else { // Take item i
                 table[subProbId] = table[takenSubProbId];
-                table[subProbId].items.push_back(instance.items[itemIndex]);
+                table[subProbId].itemIndicies.insert(itemIndex);
             }
         }
 

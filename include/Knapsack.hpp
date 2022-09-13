@@ -8,6 +8,7 @@
 #include <random>
 #include <algorithm>
 #include <queue>
+#include <unordered_set>
 
 /**
  * Special cases to check for!
@@ -49,7 +50,7 @@ namespace Knapsack {
 
         }
 
-        void WriteToFile(const std::string &filePath);
+        void WriteToFile(const std::string &filePath) const;
 
         friend std::ostream& operator<<(std::ostream &stream, const KnapsackInstance &instance) {
             stream << "Num Elements: " << instance.items.size() << std::endl;
@@ -61,16 +62,10 @@ namespace Knapsack {
     };
 
     struct KnapsackResult {
-        std::vector<Item> items;
+        std::unordered_set<size_t> itemIndicies;
     
         bool operator==(const KnapsackResult &other) {
-            std::vector<Item> sorted = items;
-            std::vector<Item> otherSorted = other.items;
-
-            std::sort(sorted.begin(), sorted.end());
-            std::sort(otherSorted.begin(), otherSorted.end());
-            
-            return sorted == otherSorted;
+            return itemIndicies == other.itemIndicies;
         }
     };
 
@@ -92,13 +87,13 @@ namespace Knapsack {
     KnapsackResult BruteForceFast(const KnapsackInstance &instance);
 
     struct BranchAndBoundNode {
-        std::vector<Item> selectedItems;
+        std::vector<size_t> selectedIndecies;
         int64_t valueSum, weightSum;
 
         int64_t valueUpperBound;
         size_t index;
 
-        BranchAndBoundNode(std::vector<Item> selectedItems, int64_t valueSum, int64_t weightSum, int64_t valueUpperBound, size_t index) : selectedItems(selectedItems), valueSum(valueSum), weightSum(weightSum), valueUpperBound(valueUpperBound), index(index) {
+        BranchAndBoundNode(std::vector<size_t> selectedIndecies, int64_t valueSum, int64_t weightSum, int64_t valueUpperBound, size_t index) : selectedIndecies(selectedIndecies), valueSum(valueSum), weightSum(weightSum), valueUpperBound(valueUpperBound), index(index) {
 
         }
 
