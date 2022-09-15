@@ -17,3 +17,17 @@ It can be shown that the (fractional) greedy solution to the knapsack problem se
 The main problem of the Branch and Bound solution was how to traceback the nodes that give the optimal value. To do this, a significantly smaller instance of the nodes were stored in a list and had a link to the next meta-node, as they were named, and the item that the node opted to take. That way the size can be minimized without affecting the forward node exploration. This was also mainly to prevent the need for storing the list of selected items in every node in the exploration tree.
 
 However, it was found that the branch and bound solution would generate significantly more nodes to explore than the DP solution... And would often take significantly longer.
+
+## Usage
+
+To build this, you need CMake and a compiler (gcc or clang for unix systems). 
+
+```
+./> git clone https://github.com/Same4254/Knapsack-Solver.git
+./> cd Knapsack-Solver
+./Knapsack-Solver/> mkdir build
+./Knapsack-Solver/> cd build/
+./Knapsack-Solver/build/> cmake -D CMAKE_BUILD_TYPE=RelWithDebInfo ..
+./Knapsack-Solver/build/> make
+./Knapsack-Solver/build/> ./Knapsack --instance <file-path>
+```
