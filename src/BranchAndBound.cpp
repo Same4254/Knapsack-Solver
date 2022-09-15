@@ -40,7 +40,9 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
     // signifies when to stop tracing
     tracebackInformation.push_back(MetaNode(UINT32_MAX, UINT32_MAX));
 
+    size_t count = 0;
     while (!pq.empty()) {
+        count++;
         // Is there a better way to not reault in this copy?
         //BranchAndBoundNode currentNode = pq.top();
         //pq.pop();
@@ -48,7 +50,6 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
         BranchAndBoundNode currentNode = pq[pq.size() - 1];
         pq.pop_back();
 
-        // terminating condition. Assuming there is no weight of 0
         if (currentNode.valueSum > bestNode.valueSum)
             bestNode = currentNode;
 
@@ -79,6 +80,8 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
             tracebackInformation.push_back(MetaNode(currentNode.tracebackIndex, UINT32_MAX));
         }
     }
+
+    std::cout << "Branch and Bound Node Count: " << count << std::endl;
 
     MetaNode *node = &tracebackInformation[bestNode.tracebackIndex];
     while (!(node->itemIndex == UINT32_MAX && node->nextIndex == UINT32_MAX)) {

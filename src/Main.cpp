@@ -119,8 +119,9 @@ int main(int argc, char *argv[]) {
         }
 
         for(size_t i = 0; i < 100; i++) {
-            KnapsackInstance instance = GenerateRandomInstance(25, 28, 20, 50);
+            KnapsackInstance instance = GenerateRandomInstance(15, 18, 20, 50);
 
+            std::cout << "Item Count: " << instance.items.size() << std::endl;
             TimeAndTest(instance, true);
             //KnapsackResult res = DPKnapsack(instance);
             //std::cout << res.itemIndicies.size() << std::endl;

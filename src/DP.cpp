@@ -18,7 +18,10 @@ KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
     int64_t untakenRemCapacity, takenRemCapacity;
     uint64_t untakenSubProbId, takenSubProbId, untakenProfit, takenProfit;
 
+    size_t count = 0;
     while (subProbIdStack.size() > 0) {
+        count++;
+
         subProbId = subProbIdStack.top();
         remCapacity = subProbId >> 32;
         itemIndex = subProbId & (((uint64_t)1 << 32) - 1);
@@ -76,6 +79,8 @@ KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
         // Done here, go back up the stack
         subProbIdStack.pop();
     }
+
+    std::cout << "Dynamic Programming Node Count: " << count << std::endl;
 
     return table[fullProbId];
 }
