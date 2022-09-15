@@ -2,6 +2,25 @@
 
 using namespace Knapsack;
 
+bool GreedySortCompare(const Item &item1, const Item &item2) {
+    return ((float) item1.value / (float) item1.weight) > ((float) item2.value / (float) item2.weight);
+}
+
+KnapsackInstance::KnapsackInstance(const int64_t capacity, std::vector<Item> items) : capacity(capacity) {
+    for (auto &item : items) {
+        if (item.value == 0)
+            continue;
+
+        if (item.weight == 0) {
+            zeroWeights.push_back(item);
+        } else {
+            this->items.push_back(item);
+        }
+    }
+
+    std::sort(this->items.begin(), this->items.end(), GreedySortCompare);
+}
+
 // TODO: Could replace this with some file buffering and specific to the format (rather than using streams), for speed
 KnapsackInstance::KnapsackInstance(const std::string &filePath) {
     std::ifstream file(filePath);
@@ -16,17 +35,21 @@ KnapsackInstance::KnapsackInstance(const std::string &filePath) {
 
     items.reserve(numElements);
 
-    //std::cout << numElements << std::endl;
     for (size_t i = 0; i < numElements; i++) {
         file >> itemIndex >> itemValue >> itemWeight;
-        //std::cout << itemIndex << ", " << itemValue << ", " << itemWeight << std::endl;
 
-        items.push_back(Item(itemValue, itemWeight));
+        if (itemValue == 0)
+            continue;
+
+        if (itemWeight == 0)
+            zeroWeights.push_back(Item(itemValue, itemWeight));
+        else
+            items.push_back(Item(itemValue, itemWeight));
     }
 
     file >> capacity;
 
-    //std::cout << capacity << std::endl;
+    std::sort(items.begin(), items.end(), GreedySortCompare);
 
     file.close();
 }

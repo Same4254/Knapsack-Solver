@@ -34,21 +34,15 @@ namespace Knapsack {
         inline bool operator<(const Item &other) const {
             return value == other.value ? weight <= other.weight : value < other.value;
         }
-
-        inline bool operator==(const Item &other) const {
-            return value == other.value && weight == other.weight;
-        }
     };
 
     struct KnapsackInstance {
         int64_t capacity;
         std::vector<Item> items;
+        std::vector<Item> zeroWeights;
 
         KnapsackInstance(const std::string &filePath);
-
-        KnapsackInstance(const int64_t capacity, std::vector<Item> items) : capacity(capacity), items(items) {
-
-        }
+        KnapsackInstance(const int64_t capacity, std::vector<Item> items);
 
         void WriteToFile(const std::string &filePath) const;
 
@@ -73,7 +67,7 @@ namespace Knapsack {
 
 
     /**
-     * Generates a randome problems instance with maximum constraints provided
+     * Generates a random problems instance with maximum constraints provided
      * The capacity of the knapsack is a random value between the weight of the heaviest item and the sum of all item weights.
      * This is because any value of capacity less than the heaviest item will begin to filter out items, which is not interesting to test. 
      * Any capacity greater than the sum of all weights is no different from an even higher capacity (solution: take everything).
@@ -87,13 +81,13 @@ namespace Knapsack {
     KnapsackResult BruteForceFast(const KnapsackInstance &instance);
 
     struct BranchAndBoundNode {
-        std::vector<size_t> selectedIndecies;
-        int64_t valueSum, weightSum;
+        uint32_t valueSum, weightSum;
 
-        int64_t valueUpperBound;
-        size_t index;
+        float valueUpperBound;
+        uint32_t itemIndex;
+        uint32_t tracebackIndex;
 
-        BranchAndBoundNode(std::vector<size_t> selectedIndecies, int64_t valueSum, int64_t weightSum, int64_t valueUpperBound, size_t index) : selectedIndecies(selectedIndecies), valueSum(valueSum), weightSum(weightSum), valueUpperBound(valueUpperBound), index(index) {
+        BranchAndBoundNode(uint32_t valueSum, uint32_t weightSum, float valueUpperBound, uint32_t itemIndex, uint32_t tracebackIndex) : valueSum(valueSum), weightSum(weightSum), valueUpperBound(valueUpperBound), itemIndex(itemIndex), tracebackIndex(tracebackIndex) {
 
         }
 

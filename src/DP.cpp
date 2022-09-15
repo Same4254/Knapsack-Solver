@@ -5,7 +5,6 @@ using namespace Knapsack;
 
 // Since the table uses 64-bit identifiers for subproblems, this assumes the capacity <= 2^32 and number of items is <= 2^32
 KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
-    
     if (instance.items.size() == 0) // In case there are no items
         return KnapsackResult();
 
@@ -20,7 +19,6 @@ KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
     uint64_t untakenSubProbId, takenSubProbId, untakenProfit, takenProfit;
 
     while (subProbIdStack.size() > 0) {
-       
         subProbId = subProbIdStack.top();
         remCapacity = subProbId >> 32;
         itemIndex = subProbId & (((uint64_t)1 << 32) - 1);
@@ -77,12 +75,7 @@ KnapsackResult DPKnapsack(const KnapsackInstance &instance) {
 
         // Done here, go back up the stack
         subProbIdStack.pop();
-
     }
 
     return table[fullProbId];
-
 }
-
-
-

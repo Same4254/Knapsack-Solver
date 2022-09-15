@@ -21,41 +21,72 @@ float CalculateBnBUpperBound(const KnapsackInstance &instance, const size_t star
 KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
     KnapsackResult result;
 
-    BranchAndBoundNode bestNode({}, 0, 0, CalculateBnBUpperBound(instance, 0, instance.capacity), 0);
-    std::priority_queue<BranchAndBoundNode, std::vector<BranchAndBoundNode>, std::less<BranchAndBoundNode>> pq;
-    pq.push(bestNode);
+    BranchAndBoundNode bestNode(0, 0, CalculateBnBUpperBound(instance, 0, instance.capacity), 0, 0);
+    //std::priority_queue<BranchAndBoundNode, std::vector<BranchAndBoundNode>, std::less<BranchAndBoundNode>> pq;
+    std::vector<BranchAndBoundNode> pq;
+    //pq.push(bestNode);
+    pq.push_back(bestNode);
+
+    struct MetaNode {
+        uint32_t nextIndex;
+        uint32_t itemIndex;
+
+        MetaNode(uint32_t nextIndex, uint32_t itemIndex) : nextIndex(nextIndex), itemIndex(itemIndex) {
+
+        }
+    };
+
+    std::vector<MetaNode> tracebackInformation;
+    // signifies when to stop tracing
+    tracebackInformation.push_back(MetaNode(UINT32_MAX, UINT32_MAX));
 
     while (!pq.empty()) {
         // Is there a better way to not reault in this copy?
-        BranchAndBoundNode currentNode = pq.top();
-        pq.pop();
+        //BranchAndBoundNode currentNode = pq.top();
+        //pq.pop();
+
+        BranchAndBoundNode currentNode = pq[pq.size() - 1];
+        pq.pop_back();
 
         // terminating condition. Assuming there is no weight of 0
         if (currentNode.valueSum > bestNode.valueSum)
             bestNode = currentNode;
 
         // Performance note: if we have the list sorted by weight, we can stop if the rest of the weight of items is too big
-        if (currentNode.index == instance.items.size() || currentNode.weightSum == instance.capacity) {
+        if (currentNode.itemIndex == instance.items.size() || currentNode.weightSum == instance.capacity) {
             continue;
         }
 
         // include current item
-        if (instance.items[currentNode.index].weight + currentNode.weightSum <= instance.capacity) {
-            int64_t newValueSum = currentNode.valueSum + instance.items[currentNode.index].value;
-            int64_t newWeightSum = currentNode.weightSum + instance.items[currentNode.index].weight;
-
-            BranchAndBoundNode node(currentNode.selectedIndecies, newValueSum, newWeightSum, newValueSum + CalculateBnBUpperBound(instance, currentNode.index + 1, instance.capacity - newWeightSum), currentNode.index + 1);
-            node.selectedIndecies.push_back(currentNode.index);
-
-            pq.push(BranchAndBoundNode(node));
+        if (instance.items[currentNode.itemIndex].weight + currentNode.weightSum <= instance.capacity) {
+            int64_t newValueSum = currentNode.valueSum + instance.items[currentNode.itemIndex].value;
+            int64_t newWeightSum = currentNode.weightSum + instance.items[currentNode.itemIndex].weight;
+            
+            if (newWeightSum <= instance.capacity) {
+                // Stop evaluating if the upper bound is less than than our current solution
+                float upperBound = (float) newValueSum + CalculateBnBUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - newWeightSum);
+                if (upperBound > bestNode.valueSum) {
+                    pq.push_back(BranchAndBoundNode(newValueSum, newWeightSum, upperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
+                    tracebackInformation.push_back(MetaNode(currentNode.tracebackIndex, currentNode.itemIndex));
+                }
+            }
         }
 
-        // exclude current item
-        pq.push(BranchAndBoundNode(currentNode.selectedIndecies, currentNode.valueSum, currentNode.weightSum, currentNode.valueSum + CalculateBnBUpperBound(instance, currentNode.index + 1, instance.capacity - currentNode.weightSum), currentNode.index + 1));
+        float upperBound = (float) currentNode.valueSum + CalculateBnBUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - currentNode.weightSum);
+        if (upperBound > bestNode.valueSum) {
+            // exclude current item
+            pq.push_back(BranchAndBoundNode(currentNode.valueSum, currentNode.weightSum, upperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
+            tracebackInformation.push_back(MetaNode(currentNode.tracebackIndex, UINT32_MAX));
+        }
     }
 
-    for (auto i : bestNode.selectedIndecies)
-        result.itemIndicies.insert(i);
+    MetaNode *node = &tracebackInformation[bestNode.tracebackIndex];
+    while (!(node->itemIndex == UINT32_MAX && node->nextIndex == UINT32_MAX)) {
+        if (node->itemIndex != UINT32_MAX)
+            result.itemIndicies.insert(node->itemIndex);
+
+        node = &tracebackInformation[node->nextIndex];
+    }
 
     return result;
 }

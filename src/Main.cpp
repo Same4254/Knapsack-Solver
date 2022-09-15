@@ -22,21 +22,25 @@ void TimeAndTest(const KnapsackInstance &instance, bool writeFails) {
     using std::chrono::seconds;
     using std::chrono::minutes;
 
+    //auto t1 = high_resolution_clock::now();
+    //KnapsackResult res = BruteForce(instance);
+    //auto t2 = high_resolution_clock::now();
+
+    //int64_t optimal_value = 0;
+    //for (auto i : res.itemIndicies)
+    //    optimal_value += instance.items[i].value;
+
+    //std::cout << "Brute Force: " << duration_cast<minutes>(t2 - t1).count() << "m " << (duration_cast<seconds>(t2 - t1).count() % 60) << "s" << std::endl;
+
     auto t1 = high_resolution_clock::now();
-    KnapsackResult res = BruteForce(instance);
+    KnapsackResult res2 = BruteForceFast(instance);
     auto t2 = high_resolution_clock::now();
 
     int64_t optimal_value = 0;
-    for (auto i : res.itemIndicies)
+    for (auto i : res2.itemIndicies)
         optimal_value += instance.items[i].value;
 
-    std::cout << "Brute Force: " << duration_cast<minutes>(t2 - t1).count() << "m " << (duration_cast<seconds>(t2 - t1).count() % 60) << "s" << std::endl;
-
-    //t1 = high_resolution_clock::now();
-    //KnapsackResult res2 = BruteForceFast(instance);
-    //t2 = high_resolution_clock::now();
-
-    //std::cout << "Brute Force Fast: " << duration_cast<minutes>(t2 - t1).count() << "m " << (duration_cast<seconds>(t2 - t1).count() % 60) << "s" << std::endl;
+    std::cout << "Brute Force Fast: " << duration_cast<minutes>(t2 - t1).count() << "m " << (duration_cast<seconds>(t2 - t1).count() % 60) << "s" << std::endl;
 
     t1 = high_resolution_clock::now();
     KnapsackResult res3 = DPKnapsack(instance);
@@ -60,7 +64,7 @@ void TimeAndTest(const KnapsackInstance &instance, bool writeFails) {
     //    std::cout << "--Error!-- Brute Forces Do not agree!" << std::endl;
     //}
 
-    if (!(res3 == res)) {
+    if (!(res3 == res2)) {
         int64_t value = 0;
         for (auto i : res3.itemIndicies)
             value += instance.items[i].value;
@@ -71,7 +75,7 @@ void TimeAndTest(const KnapsackInstance &instance, bool writeFails) {
         }
     }
 
-    if (!(res4 == res)) {
+    if (!(res4 == res2)) {
         int64_t value = 0;
         for (auto i : res4.itemIndicies)
             value += instance.items[i].value;
@@ -94,8 +98,71 @@ void TimeAndTest(const KnapsackInstance &instance, bool writeFails) {
     std::cout << std::endl;
 }
 
-int main() {
+void usage() {
+    std::cout << "Usage:" << std::endl;
+    std::cout << "\t--instance <file-path>" << std::endl;
+}
+
+int main(int argc, char *argv[]) {
     using namespace Knapsack;
+
+    if (argc == 1) {
+        //Testing stuff
+        std::filesystem::path testCaseFolder("TestCases/Failed");
+        if (!std::filesystem::exists(testCaseFolder)) {
+            std::filesystem::create_directory(testCaseFolder);
+        }
+
+        for (auto& f : std::filesystem::directory_iterator(testCaseFolder)) {
+            std::cout << "Testing: " << f.path().filename() << std::endl;
+            TimeAndTest(KnapsackInstance(f.path().string()), false);
+        }
+
+        for(size_t i = 0; i < 100; i++) {
+            KnapsackInstance instance = GenerateRandomInstance(25, 28, 20, 50);
+
+            TimeAndTest(instance, true);
+            //KnapsackResult res = DPKnapsack(instance);
+            //std::cout << res.itemIndicies.size() << std::endl;
+        }
+    } else if(argc == 3) {
+        std::string command(argv[1]);
+        std::string value(argv[2]);
+        if (command == "--instance") {
+            KnapsackInstance instance(value);
+            KnapsackResult result = DPKnapsack(instance);
+
+            std::cout << "Items:" << std::endl;
+            
+            uint32_t value = 0;
+            uint32_t weight = 0;
+            for (auto i : result.itemIndicies) {
+                value += instance.items[i].value;
+                weight += instance.items[i].weight;
+
+                std::cout << "Value: " << instance.items[i].value << ", Weight: " << instance.items[i].weight << std::endl;
+            }
+
+            for (auto &item : instance.zeroWeights) {
+                value += item.value;
+                weight += item.weight;
+
+                std::cout << "Value: " << item.value << ", Weight: " << item.weight << std::endl;
+
+            }
+
+            std::cout << std::endl;
+            std::cout << "Total Value: " << value << ", " << "Total Weight: " << weight << std::endl;
+        } else {
+            usage();
+        }
+    }
+
+    //KnapsackInstance instance(2, { {1, 1}, {100, 1}, {1000, 1}});
+
+    //KnapsackResult b = DPKnapsack(instance);
+
+    //KnapsackInstance instance("TestCases/Failed/Failed_1.txt");
 
     //KnapsackResult b = BruteForceFast(instance);
     //KnapsackResult bnb = BranchAndBound(instance);
@@ -110,7 +177,7 @@ int main() {
     //    weight1 += instance.items[i].weight;
     //    value1 += instance.items[i].value;
     //}
-    //
+    
     //for (auto i : bnb.itemIndicies) {
     //    weight2 += instance.items[i].weight;
     //    value2 += instance.items[i].value;
@@ -119,31 +186,6 @@ int main() {
     //std::cout << value1 << " " << weight1 << std::endl;
     //std::cout << value2 << " " << weight2 << std::endl;
 
-    std::filesystem::path testCaseFolder("TestCases/Failed");
-    if (!std::filesystem::exists(testCaseFolder)) {
-        std::filesystem::create_directory(testCaseFolder);
-    }
-
-    for (auto& f : std::filesystem::directory_iterator(testCaseFolder)) {
-        std::cout << "Testing: " << f.path().filename() << std::endl;
-        TimeAndTest(KnapsackInstance(f.path().string()), false);
-    }
-
-    for(size_t i = 0; i < 1000; i++) {
-        KnapsackInstance instance = GenerateRandomInstance(1, 25, 20, 50);
-
-        TimeAndTest(instance, true);
-    }
-
-    //int64_t value = 0;
-    //int64_t weight = 0;
-
-    //for (const auto &item : res2.items) {
-    //    value += item.value;
-    //    weight += item.weight;
-    //}
-
-    //std::cout << "Optimal Value: " << value << std::endl;
-
+    
     return 0;
 }
