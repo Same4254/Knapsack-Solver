@@ -31,3 +31,4 @@ To build this, you need CMake and a compiler (gcc or clang for unix systems).
 ./Knapsack-Solver/build/> make
 ./Knapsack-Solver/build/> ./Knapsack --instance <file-path>
 ```
+The executable allows you to run with a specific test case file, see example test case in the folder. If you would like to torture your computer, there is a feature to randomly generate test instances and run all algorithms (including brute force) on them. Simply run the exectuable with no arguments!
