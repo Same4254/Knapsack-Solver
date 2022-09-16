@@ -96,5 +96,6 @@ namespace Knapsack {
         }
     };
 
+    float CalculateGreedyUpperBound(const KnapsackInstance &instance, const size_t startingIndex, int64_t remainingCapacity);
     KnapsackResult BranchAndBound(const KnapsackInstance &instance);
 };

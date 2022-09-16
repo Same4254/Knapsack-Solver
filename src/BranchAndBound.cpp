@@ -2,9 +2,9 @@
 
 using namespace Knapsack;
 
-float CalculateBnBUpperBound(const KnapsackInstance &instance, const size_t startingIndex, int64_t remainingCapacity) {
+float Knapsack::CalculateGreedyUpperBound(const KnapsackInstance &instance, const size_t startingIndex, int64_t remainingCapacity) {
     float upperBound = 0;
-    for (size_t i = 0; i < instance.items.size(); i++) {
+    for (size_t i = startingIndex; i < instance.items.size(); i++) {
         const Item &item = instance.items[i];
         if (item.weight > remainingCapacity) {
             upperBound += item.value * ((float) remainingCapacity / (float) item.weight);
@@ -21,7 +21,7 @@ float CalculateBnBUpperBound(const KnapsackInstance &instance, const size_t star
 KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
     KnapsackResult result;
 
-    BranchAndBoundNode bestNode(0, 0, CalculateBnBUpperBound(instance, 0, instance.capacity), 0, 0);
+    BranchAndBoundNode bestNode(0, 0, CalculateGreedyUpperBound(instance, 0, instance.capacity), 0, 0);
     //std::priority_queue<BranchAndBoundNode, std::vector<BranchAndBoundNode>, std::less<BranchAndBoundNode>> pq;
     std::vector<BranchAndBoundNode> pq;
     //pq.push(bestNode);
@@ -65,15 +65,16 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
             
             if (newWeightSum <= instance.capacity) {
                 // Stop evaluating if the upper bound is less than than our current solution
-                float upperBound = (float) newValueSum + CalculateBnBUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - newWeightSum);
+                float upperBound = (float) newValueSum + CalculateGreedyUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - newWeightSum);
                 if (upperBound > bestNode.valueSum) {
+
                     pq.push_back(BranchAndBoundNode(newValueSum, newWeightSum, upperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
                     tracebackInformation.push_back(MetaNode(currentNode.tracebackIndex, currentNode.itemIndex));
                 }
             }
         }
 
-        float upperBound = (float) currentNode.valueSum + CalculateBnBUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - currentNode.weightSum);
+        float upperBound = (float) currentNode.valueSum + CalculateGreedyUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - currentNode.weightSum);
         if (upperBound > bestNode.valueSum) {
             // exclude current item
             pq.push_back(BranchAndBoundNode(currentNode.valueSum, currentNode.weightSum, upperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
