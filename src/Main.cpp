@@ -123,15 +123,13 @@ int main(int argc, char *argv[]) {
 
             std::cout << "Item Count: " << instance.items.size() << std::endl;
             TimeAndTest(instance, true);
-            //KnapsackResult res = DPKnapsack(instance);
-            //std::cout << res.itemIndicies.size() << std::endl;
         }
     } else if(argc == 3) {
         std::string command(argv[1]);
         std::string value(argv[2]);
         if (command == "--instance") {
             KnapsackInstance instance(value);
-            KnapsackResult result = DPKnapsack(instance);
+            KnapsackResult result = BranchAndBound(instance);
 
             std::cout << "Items:" << std::endl;
             
@@ -149,7 +147,6 @@ int main(int argc, char *argv[]) {
                 weight += item.weight;
 
                 std::cout << "Value: " << item.value << ", Weight: " << item.weight << std::endl;
-
             }
 
             std::cout << std::endl;
@@ -158,35 +155,6 @@ int main(int argc, char *argv[]) {
             usage();
         }
     }
-
-    //KnapsackInstance instance(2, { {1, 1}, {100, 1}, {1000, 1}});
-
-    //KnapsackResult b = DPKnapsack(instance);
-
-    //KnapsackInstance instance("TestCases/Failed/Failed_1.txt");
-
-    //KnapsackResult b = BruteForceFast(instance);
-    //KnapsackResult bnb = BranchAndBound(instance);
-
-    //int64_t value1 = 0;
-    //int64_t weight1 = 0;
-
-    //int64_t value2 = 0;
-    //int64_t weight2 = 0;
-
-    //for (auto i : b.itemIndicies) {
-    //    weight1 += instance.items[i].weight;
-    //    value1 += instance.items[i].value;
-    //}
-    
-    //for (auto i : bnb.itemIndicies) {
-    //    weight2 += instance.items[i].weight;
-    //    value2 += instance.items[i].value;
-    //}
-
-    //std::cout << value1 << " " << weight1 << std::endl;
-    //std::cout << value2 << " " << weight2 << std::endl;
-
     
     return 0;
 }
