@@ -16,8 +16,6 @@ It can be shown that the (fractional) greedy solution to the knapsack problem se
 
 The main problem of the Branch and Bound solution was how to traceback the nodes that give the optimal value. To do this, a significantly smaller instance of the nodes were stored in a list and had a link to the next meta-node, as they were named, and the item that the node opted to take. That way the size can be minimized without affecting the forward node exploration. This was also mainly to prevent the need for storing the list of selected items in every node in the exploration tree.
 
-However, it was found that the branch and bound solution would generate significantly more nodes to explore than the DP solution... And would often take significantly longer.
-
 ## Usage
 
 To build this, you need CMake and a compiler (gcc or clang for unix systems). 
@@ -32,3 +30,19 @@ To build this, you need CMake and a compiler (gcc or clang for unix systems).
 ./Knapsack-Solver/build/> ./Knapsack --instance <file-path>
 ```
 The executable allows you to run with a specific test case file, see example test case in the folder. If you would like to torture your computer, there is a feature to randomly generate test instances and run all algorithms (including brute force) on them. Simply run the exectuable with no arguments!
+
+## Findings
+We found that the Branch and Bound was able to get away with exploring significantly less nodes to explore than the DP solution. Provided is an example of a randomly generated problem instance of 29 items.
+
+```
+Item Count: 29
+Brute Force Fast: 0m 28s
+Dynamic Programming Node Count: 5521
+Dynamic Programming:0m 0s
+Branch and Bound Node Count: 4414
+Branch and Bound: 0m 0s
+```
+
+## Bugs we had along the way
+
+In the branch and bound code, there was an awful bug in the calculation of the upperbound. The upperbound calculation must start on the next item that has not been chosen yet. However, the loop that went through the list just started at 0. Meaning that the upperbound was reasonable looking, but not correct. This cause the branch and bound to explore SIGNIFICANTLY more nodes that it should have. At times the vector allocation failed because the machine ran out of memory...
