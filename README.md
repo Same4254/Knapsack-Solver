@@ -16,6 +16,8 @@ It can be shown that the (fractional) greedy solution to the knapsack problem se
 
 The main problem of the Branch and Bound solution was how to traceback the nodes that give the optimal value. To do this, a significantly smaller instance of the nodes were stored in a list and had a link to the next meta-node, as they were named, and the item that the node opted to take. That way the size can be minimized without affecting the forward node exploration. This was also mainly to prevent the need for storing the list of selected items in every node in the exploration tree.
 
+Also, we used an additional optimization! We filter out sub-trees with upper bounds lower than the current lower bound. Normally the program would start with a lower bound of 0. But in reality, we can get a fairly descent lower bound instantly! The upperbound takes the last item it can fractionally. The lower bound can be the same items except exclude the last fractional piece. This gives a much more tight bound on the optimal solution and reduces the exploration tremendously.
+
 ## Usage
 
 To build this, you need CMake and a compiler (gcc or clang for unix systems). 
@@ -34,12 +36,23 @@ The executable allows you to run with a specific test case file, see example tes
 ## Findings
 We found that the Branch and Bound was able to get away with exploring significantly less nodes to explore than the DP solution. Provided is an example of a randomly generated problem instance of 29 items.
 
+Before lower bound optimization:
 ```
 Item Count: 29
 Brute Force Fast: 0m 28s
 Dynamic Programming Node Count: 5521
 Dynamic Programming:0m 0s
 Branch and Bound Node Count: 4414
+Branch and Bound: 0m 0s
+```
+
+After lower bound optimization:
+```
+Item Count: 29
+Brute Force Fast: 0m 28s
+Dynamic Programming Node Count: 5521
+Dynamic Programming:0m 0s
+Branch and Bound Node Count: 29
 Branch and Bound: 0m 0s
 ```
 
