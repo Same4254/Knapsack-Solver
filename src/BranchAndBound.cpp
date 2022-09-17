@@ -21,6 +21,15 @@ float Knapsack::CalculateGreedyUpperBound(const KnapsackInstance &instance, cons
 KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
     KnapsackResult result;
 
+    uint32_t lowerboundValue = 0;
+    uint32_t lowerboundWeight = 0;
+    for (size_t i = 0; i < instance.items.size(); i++) {
+        if (lowerboundWeight + instance.items[i].weight > instance.capacity)
+            break;
+        lowerboundValue += instance.items[i].value;
+        lowerboundWeight += instance.items[i].weight;
+    }
+
     BranchAndBoundNode bestNode(0, 0, CalculateGreedyUpperBound(instance, 0, instance.capacity), 0, 0);
     //std::priority_queue<BranchAndBoundNode, std::vector<BranchAndBoundNode>, std::less<BranchAndBoundNode>> pq;
     std::vector<BranchAndBoundNode> pq;
@@ -50,10 +59,11 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
         BranchAndBoundNode currentNode = pq[pq.size() - 1];
         pq.pop_back();
 
-        if (currentNode.valueSum > bestNode.valueSum)
+        if (currentNode.valueSum > lowerboundValue) {
             bestNode = currentNode;
+            lowerboundValue = currentNode.valueSum;
+        }
 
-        // Performance note: if we have the list sorted by weight, we can stop if the rest of the weight of items is too big
         if (currentNode.itemIndex == instance.items.size() || currentNode.weightSum == instance.capacity) {
             continue;
         }
@@ -65,17 +75,17 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
             
             if (newWeightSum <= instance.capacity) {
                 // Stop evaluating if the upper bound is less than than our current solution
-                float upperBound = (float) newValueSum + CalculateGreedyUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - newWeightSum);
-                if (upperBound > bestNode.valueSum) {
+                //float upperBound = (float) newValueSum + CalculateGreedyUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - newWeightSum);
+                //if (currentNode.valueUpperBound > lowerboundValue) {
 
-                    pq.push_back(BranchAndBoundNode(newValueSum, newWeightSum, upperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
+                    pq.push_back(BranchAndBoundNode(newValueSum, newWeightSum, currentNode.valueUpperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
                     tracebackInformation.push_back(MetaNode(currentNode.tracebackIndex, currentNode.itemIndex));
-                }
+                //}
             }
         }
 
         float upperBound = (float) currentNode.valueSum + CalculateGreedyUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - currentNode.weightSum);
-        if (upperBound > bestNode.valueSum) {
+        if (upperBound > lowerboundValue) {
             // exclude current item
             pq.push_back(BranchAndBoundNode(currentNode.valueSum, currentNode.weightSum, upperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
             tracebackInformation.push_back(MetaNode(currentNode.tracebackIndex, UINT32_MAX));
@@ -84,12 +94,23 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
 
     std::cout << "Branch and Bound Node Count: " << count << std::endl;
 
-    MetaNode *node = &tracebackInformation[bestNode.tracebackIndex];
-    while (!(node->itemIndex == UINT32_MAX && node->nextIndex == UINT32_MAX)) {
-        if (node->itemIndex != UINT32_MAX)
-            result.itemIndicies.insert(node->itemIndex);
+    if (bestNode.tracebackIndex == 0 && bestNode.itemIndex == 0) {
+        uint32_t weightSum = 0;
+        for (size_t i = 0; i < instance.items.size(); i++) {
+            if (instance.items[i].weight + weightSum > instance.capacity)
+                break;
 
-        node = &tracebackInformation[node->nextIndex];
+            weightSum += instance.items[i].weight;
+            result.itemIndicies.insert(i);
+        }
+    } else {
+        MetaNode *node = &tracebackInformation[bestNode.tracebackIndex];
+        while (!(node->itemIndex == UINT32_MAX && node->nextIndex == UINT32_MAX)) {
+            if (node->itemIndex != UINT32_MAX)
+                result.itemIndicies.insert(node->itemIndex);
+
+            node = &tracebackInformation[node->nextIndex];
+        }
     }
 
     return result;
