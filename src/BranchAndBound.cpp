@@ -76,11 +76,11 @@ KnapsackResult Knapsack::BranchAndBound(const KnapsackInstance &instance) {
             if (newWeightSum <= instance.capacity) {
                 // Stop evaluating if the upper bound is less than than our current solution
                 //float upperBound = (float) newValueSum + CalculateGreedyUpperBound(instance, currentNode.itemIndex + 1, instance.capacity - newWeightSum);
-                //if (currentNode.valueUpperBound > lowerboundValue) {
+                if (currentNode.valueUpperBound > lowerboundValue) {
 
                     pq.push_back(BranchAndBoundNode(newValueSum, newWeightSum, currentNode.valueUpperBound, currentNode.itemIndex + 1, tracebackInformation.size()));
                     tracebackInformation.push_back(MetaNode(currentNode.tracebackIndex, currentNode.itemIndex));
-                //}
+                }
             }
         }
 
